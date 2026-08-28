@@ -10,19 +10,39 @@ import pytest
 from reversible_import.compat.registry import get_adapter
 
 
-@pytest.fixture(scope="session", autouse=True)
-def frappe_site() -> str:
-    """Initialise Frappe and connect to the test site.
+def pytest_sessionstart(session: pytest.Session) -> None:
+    """Initialise Frappe and connect to the test site before any tests run.
 
-    The site name is read from the FRAPPE_SITE environment variable and
-    defaults to ``test_site`` so CI can run pytest directly from the bench
-    environment without ``bench run-tests``.
+    Using a session-start hook guarantees that site context is established in
+    the same execution context that the tests will use.  This is more reliable
+    than a session-scoped autouse fixture for Frappe, whose ``frappe.local``
+    state is stored in thread-local / context-var storage.
     """
     site = os.environ.get("FRAPPE_SITE", "test_site")
-    frappe.init(site, sites_path="sites")
+    sites_path = os.environ.get("FRAPPE_SITES_PATH", os.path.abspath("sites"))
+    os.environ.setdefault("FRAPPE_SITES_PATH", sites_path)
+
+    frappe.init(site, sites_path=sites_path, force=True)
     frappe.connect()
-    yield site
-    frappe.destroy()
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    """Clean up the Frappe site connection after all tests finish."""
+    try:
+        frappe.destroy()
+    except Exception:
+        pass
+
+
+@pytest.fixture(scope="session")
+def frappe_site() -> str:
+    """Return the name of the current Frappe test site.
+
+    Actual initialisation is performed in :func:`pytest_sessionstart`; this
+    fixture exists so that other fixtures can express an explicit dependency on
+    the site being ready.
+    """
+    return os.environ.get("FRAPPE_SITE", "test_site")
 
 
 @pytest.fixture(scope="session")
@@ -38,7 +58,7 @@ def frappe_version() -> tuple[int, int, int]:
 
 
 @pytest.fixture(scope="session")
-def adapter():
+def adapter(frappe_site):
     """Return the ImportAdapter subclass matching the current Frappe version."""
     return get_adapter()
 

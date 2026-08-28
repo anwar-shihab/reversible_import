@@ -1,4 +1,0 @@
-Customer,Customer Name,Customer Group,Territory,Contacts: First Name,Contacts: Last Name,Contacts: Email Id,Contacts: Is Primary Contact
-CUST-101,Alpha Inc,Retail,All Territories,John,Doe,john@example.com,1
-CUST-101,,,,,Jane,Doe,jane@example.com,0
-CUST-102,Beta Ltd,Wholesale,All Territories,Alice,Smith,alice@example.com,1
