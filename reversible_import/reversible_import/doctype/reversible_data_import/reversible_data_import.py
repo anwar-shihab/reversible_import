@@ -62,13 +62,10 @@ ROLLBACK_TRANSITIONS: dict[str, set[str]] = {
 
 class ReversibleDataImport(Document):
 	def validate(self):
-		from reversible_import.doctype.reversible_import_settings.reversible_import_settings import (
-			ReversibleImportSettings,
-		)
 		from reversible_import.rollback.registry import resolve_strategy
 
 		if self.is_new() or self.has_value_changed("reference_doctype"):
-			allowed = ReversibleImportSettings.get_allowed_doctypes()
+			allowed = _get_allowed_doctypes()
 			if self.reference_doctype not in allowed:
 				frappe.throw(
 					f"DocType '{self.reference_doctype}' is not enabled for reversible imports.",
@@ -192,3 +189,8 @@ class ReversibleDataImport(Document):
 	@frappe.whitelist()
 	def rollback(self):
 		self.request_rollback()
+
+
+def _get_allowed_doctypes() -> list[str]:
+	settings = frappe.get_doc("Reversible Import Settings")
+	return [row.doctype for row in settings.allowed_doctypes if row.doctype]

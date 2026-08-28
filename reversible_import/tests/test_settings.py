@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from reversible_import.doctype.reversible_import_settings.reversible_import_settings import (
-    ReversibleImportSettings,
-)
+import frappe
 
 
 class TestSettings:
     def test_allowed_doctypes_lookup(self, reversible_settings):
-        allowed = ReversibleImportSettings.get_allowed_doctypes()
+        settings = frappe.get_doc("Reversible Import Settings")
+        allowed = [row.doctype for row in settings.allowed_doctypes if row.doctype]
         assert "Note" in allowed
