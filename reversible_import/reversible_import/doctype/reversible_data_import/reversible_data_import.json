@@ -1,0 +1,236 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:REV-IMP-{####}",
+ "creation": "2026-08-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "reference_doctype",
+  "import_type",
+  "source_system",
+  "import_file",
+  "template_options",
+  "failure_policy",
+  "column_break_status",
+  "execution_status",
+  "rollback_status",
+  "requested_by",
+  "mute_emails",
+  "cancel_requested",
+  "rollback_requested",
+  "section_break_progress",
+  "total_payloads",
+  "successful_payloads",
+  "failed_payloads",
+  "column_break_timing",
+  "started_at",
+  "completed_at",
+  "section_break_audit",
+  "frappe_version",
+  "app_version",
+  "file_hash"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reference DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "default": "Insert New Records",
+   "fieldname": "import_type",
+   "fieldtype": "Select",
+   "label": "Import Type",
+   "options": "Insert New Records\nUpdate Existing Records",
+   "reqd": 1
+  },
+  {
+   "default": "CSV",
+   "fieldname": "source_system",
+   "fieldtype": "Data",
+   "label": "Source System"
+  },
+  {
+   "fieldname": "import_file",
+   "fieldtype": "Attach",
+   "label": "Import File",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template_options",
+   "fieldtype": "Code",
+   "label": "Template Options",
+   "options": "JSON"
+  },
+  {
+   "default": "Continue on Error",
+   "fieldname": "failure_policy",
+   "fieldtype": "Select",
+   "label": "Failure Policy",
+   "options": "Continue on Error\nStop on First Error"
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "execution_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Execution Status",
+   "options": "Draft\nValidated\nQueued\nRunning\nStop Requested\nStopped\nSuccess\nPartial Success\nFailed",
+   "read_only": 1
+  },
+  {
+   "default": "Not Requested",
+   "fieldname": "rollback_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Rollback Status",
+   "options": "Not Requested\nQueued\nRunning\nComplete\nPartial\nConflict\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "label": "Requested By",
+   "options": "User"
+  },
+  {
+   "default": "0",
+   "fieldname": "mute_emails",
+   "fieldtype": "Check",
+   "label": "Mute Emails"
+  },
+  {
+   "default": "0",
+   "fieldname": "cancel_requested",
+   "fieldtype": "Check",
+   "label": "Cancel Requested"
+  },
+  {
+   "default": "0",
+   "fieldname": "rollback_requested",
+   "fieldtype": "Check",
+   "label": "Rollback Requested"
+  },
+  {
+   "fieldname": "section_break_progress",
+   "fieldtype": "Section Break",
+   "label": "Progress"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_payloads",
+   "fieldtype": "Int",
+   "label": "Total Payloads"
+  },
+  {
+   "default": "0",
+   "fieldname": "successful_payloads",
+   "fieldtype": "Int",
+   "label": "Successful Payloads"
+  },
+  {
+   "default": "0",
+   "fieldname": "failed_payloads",
+   "fieldtype": "Int",
+   "label": "Failed Payloads"
+  },
+  {
+   "fieldname": "column_break_timing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At"
+  },
+  {
+   "fieldname": "completed_at",
+   "fieldtype": "Datetime",
+   "label": "Completed At"
+  },
+  {
+   "fieldname": "section_break_audit",
+   "fieldtype": "Section Break",
+   "label": "Audit"
+  },
+  {
+   "fieldname": "frappe_version",
+   "fieldtype": "Data",
+   "label": "Frappe Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "app_version",
+   "fieldtype": "Data",
+   "label": "App Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_hash",
+   "fieldtype": "Data",
+   "label": "File Hash",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Reversible Import",
+ "name": "Reversible Data Import",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Import User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Import Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Rollback Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

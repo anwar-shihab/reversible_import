@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "allowed_doctypes",
+  "heartbeat_timeout_seconds",
+  "progress_event_interval_ops",
+  "progress_event_interval_seconds"
+ ],
+ "fields": [
+  {
+   "fieldname": "allowed_doctypes",
+   "fieldtype": "Table",
+   "label": "Allowed DocTypes",
+   "options": "Reversible Import Allowed DocType"
+  },
+  {
+   "default": "300",
+   "fieldname": "heartbeat_timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Heartbeat Timeout (seconds)"
+  },
+  {
+   "default": "25",
+   "fieldname": "progress_event_interval_ops",
+   "fieldtype": "Int",
+   "label": "Progress Event Interval (operations)"
+  },
+  {
+   "default": "1",
+   "fieldname": "progress_event_interval_seconds",
+   "fieldtype": "Int",
+   "label": "Progress Event Interval (seconds)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Reversible Import",
+ "name": "Reversible Import Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

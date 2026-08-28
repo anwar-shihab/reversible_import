@@ -70,6 +70,30 @@ def fixtures_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
+def reversible_settings():
+    """Create default Reversible Import Settings with Note whitelisted for tests."""
+    if not frappe.db.exists("Reversible Import Settings"):
+        settings = frappe.get_doc(
+            {
+                "doctype": "Reversible Import Settings",
+                "heartbeat_timeout_seconds": 300,
+                "progress_event_interval_ops": 25,
+                "progress_event_interval_seconds": 1,
+            }
+        )
+        settings.insert(ignore_permissions=True)
+    else:
+        settings = frappe.get_doc("Reversible Import Settings")
+
+    existing = {row.doctype for row in settings.allowed_doctypes}
+    if "Note" not in existing:
+        settings.append("allowed_doctypes", {"doctype": "Note"})
+        settings.save(ignore_permissions=True)
+        frappe.db.commit()
+    return settings
+
+
+@pytest.fixture(scope="session")
 def sample_file(fixtures_dir: Path):
     """Return a Frappe file_url for a named fixture file.
 

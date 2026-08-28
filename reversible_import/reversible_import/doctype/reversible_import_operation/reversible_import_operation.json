@@ -1,0 +1,199 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-28 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "import_run",
+  "sequence",
+  "operation_key",
+  "operation",
+  "doctype",
+  "docname",
+  "source_key",
+  "row_indexes",
+  "column_break_status",
+  "status",
+  "rollback_status",
+  "rollback_attempt_count",
+  "rolled_back_at",
+  "section_break_snapshot",
+  "after_values",
+  "after_hash",
+  "modified_after",
+  "section_break_error",
+  "last_rollback_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "import_run",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Import Run",
+   "options": "Reversible Data Import",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sequence",
+   "reqd": 1
+  },
+  {
+   "fieldname": "operation_key",
+   "fieldtype": "Data",
+   "label": "Operation Key",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "operation",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Operation",
+   "options": "INSERT\nUPDATE",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "docname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Document Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_key",
+   "fieldtype": "Data",
+   "label": "Source Key"
+  },
+  {
+   "fieldname": "row_indexes",
+   "fieldtype": "Data",
+   "label": "Row Indexes"
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Applied",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Applied\nFailed",
+   "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "rollback_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Rollback Status",
+   "options": "Pending\nRolled Back\nConflict\nFailed",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rollback_attempt_count",
+   "fieldtype": "Int",
+   "label": "Rollback Attempt Count"
+  },
+  {
+   "fieldname": "rolled_back_at",
+   "fieldtype": "Datetime",
+   "label": "Rolled Back At"
+  },
+  {
+   "fieldname": "section_break_snapshot",
+   "fieldtype": "Section Break",
+   "label": "Snapshot"
+  },
+  {
+   "fieldname": "after_values",
+   "fieldtype": "Code",
+   "label": "After Values",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "after_hash",
+   "fieldtype": "Data",
+   "label": "After Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_after",
+   "fieldtype": "Datetime",
+   "label": "Modified After"
+  },
+  {
+   "fieldname": "section_break_error",
+   "fieldtype": "Section Break",
+   "label": "Error"
+  },
+  {
+   "fieldname": "last_rollback_error",
+   "fieldtype": "Text",
+   "label": "Last Rollback Error"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-28 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Reversible Import",
+ "name": "Reversible Import Operation",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Import User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Import Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Reversible Rollback Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "sequence",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1
+}
