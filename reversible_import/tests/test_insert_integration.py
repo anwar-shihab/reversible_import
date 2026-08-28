@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import frappe
-import pytest
 
 from reversible_import.importing.runner import run_import
 from reversible_import.rollback.engine import execute_rollback
@@ -40,18 +39,7 @@ class TestInsertIntegration:
         execute_rollback(run.name)
         run.reload()
 
-        if run.rollback_status != "Complete":
-            operations = frappe.get_all(
-                "Reversible Import Operation",
-                filters={"import_run": run.name},
-                fields=["name", "sequence", "rollback_status", "last_rollback_error"],
-                order_by="sequence ASC",
-            )
-            details = "\n".join(
-                f"seq {op.sequence}: {op.rollback_status} - {op.last_rollback_error}"
-                for op in operations
-            )
-            pytest.fail(f"Rollback ended with {run.rollback_status}:\n{details}")
+        assert run.rollback_status == "Complete"
 
         operations = frappe.get_all(
             "Reversible Import Operation",
