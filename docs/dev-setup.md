@@ -9,7 +9,12 @@ The app is developed and tested inside a standard Frappe bench.
 ```bash
 # Ubuntu/Debian dependencies (run on the host or in a VM/WSL container)
 sudo apt update
-sudo apt install python3.11-dev python3.11-venv python3.12-dev python3.12-venv build-essential mariadb-client libmariadb-dev redis-server nodejs yarn wkhtmltopdf
+sudo apt install python3.11-dev python3.11-venv python3.14-dev python3.14-venv build-essential mariadb-client libmariadb-dev redis-server wkhtmltopdf
+
+# Install Node.js 24+ and Yarn (Frappe v16 requires Node >=24)
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g yarn
 
 # Create bench
 bench init --frappe-branch version-16 --python python3.14 frappe-bench
