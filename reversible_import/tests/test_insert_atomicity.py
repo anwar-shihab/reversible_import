@@ -4,28 +4,8 @@ from unittest.mock import patch
 
 import frappe
 
-import pytest
-
 from reversible_import.importing.operation_service import process_insert_payload
 from reversible_import.importing.runner import run_import
-
-
-@pytest.fixture
-def note_import_run(reversible_settings, sample_file):
-    run = frappe.get_doc(
-        {
-            "doctype": "Reversible Data Import",
-            "reference_doctype": "Note",
-            "import_type": "Insert New Records",
-            "import_file": sample_file("notes.csv"),
-            "source_system": "CSV",
-            "failure_policy": "Continue on Error",
-        }
-    )
-    run.insert(ignore_permissions=True)
-    frappe.db.commit()
-    run.validate_file_and_preview()
-    return run
 
 
 class TestInsertAtomicity:

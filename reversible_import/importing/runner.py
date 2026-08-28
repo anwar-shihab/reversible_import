@@ -50,7 +50,7 @@ def run_import(run_name: str) -> None:
 
 		operation_key = _operation_key(run.name, sequence, payload)
 		if frappe.db.exists("Reversible Import Operation", {"operation_key": operation_key, "status": "Applied"}):
-			successful += 1
+			# Counters were already reconciled from the journal; do not count again.
 			continue
 
 		try:

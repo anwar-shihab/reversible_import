@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -127,3 +128,25 @@ def sample_file(fixtures_dir: Path):
         return file_doc.file_url
 
     return _resolve
+
+
+@pytest.fixture
+def note_import_run(reversible_settings, sample_file):
+    """Create a Reversible Data Import for the Note DocType."""
+    run = frappe.get_doc(
+        {
+            "doctype": "Reversible Data Import",
+            "reference_doctype": "Note",
+            "import_type": "Insert New Records",
+            "import_file": sample_file("notes.csv"),
+            "source_system": "CSV",
+            "template_options": json.dumps(
+                {"column_to_field_map": {"0": "title", "1": "content"}}
+            ),
+            "failure_policy": "Continue on Error",
+        }
+    )
+    run.insert(ignore_permissions=True)
+    frappe.db.commit()
+    run.validate_file_and_preview()
+    return run
