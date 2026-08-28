@@ -8,6 +8,7 @@
 **License:** MIT  
 **Architecture:** Compensating rollback / durable operation journal  
 **Core principle:** No Frappe core patches, no global monkey patches, no single long-running database transaction
+**Revision:** v2 — open grey areas resolved (see amendments throughout)
 
 ---
 
@@ -433,6 +434,16 @@ between releases.
 
 This creates one intentionally controlled compatibility seam.
 
+Each adapter MUST document, per Frappe version, how update imports treat child tables that are not mentioned in the payload:
+
+```text
+merged
+replaced
+left untouched
+```
+
+That documented behavior determines what must be snapshotted (see Child-Table Strategy).
+
 ---
 
 # 9. Data Model
@@ -628,6 +639,23 @@ Store only fields changed by the import:
 
 This keeps updates compact.
 
+## No-op updates
+
+An update payload that changes nothing is still journaled as:
+
+```text
+status = Applied
+before_values = {}
+after_values = {}
+before_hash == after_hash
+```
+
+and counts as a successful payload.
+
+Rollback of a no-op operation is trivially safe: the guard sees current state equal to the recorded `after_hash` and restores nothing.
+
+Rationale: run counters then always equal payloads processed, and retry reasoning stays simple.
+
 ---
 
 # 14. Child-Table Strategy
@@ -677,6 +705,8 @@ ROLLBACK CONFLICT
 
 This is intentionally more conservative than attempting a clever merge.
 
+What counts as a touched child table depends on the adapter's documented update semantics (see Compatibility Layer): whether child tables not mentioned in an update import are merged, replaced, or left untouched for that Frappe version. The snapshot scope follows that documentation.
+
 ---
 
 # 15. Normalized Hashing
@@ -708,6 +738,12 @@ normalization_version = 1
 ```
 
 This is important because rollback performed after an application upgrade must be able to reproduce the hash semantics used when the operation was originally imported.
+
+## Normalizer version lifetime
+
+Hash compatibility is guaranteed only for normalizer versions still bundled with the app. Every old normalizer implementation must remain bundled as long as any journal record within its rollback-eligibility window could reference it.
+
+This ties normalizer lifetime to retention (see Data Retention): once `rollback eligibility days` has passed for all runs written by a normalizer version, that version's code path may be removed in a later release.
 
 ---
 
@@ -837,6 +873,16 @@ ROLLBACK CONFLICT
 
 Do not force-delete the Sales Order or Customer.
 
+## Cross-run dependency preflight
+
+Rollback preflight must also detect links to this run's imported documents that were created by OTHER reversible import runs, using the operation journal. When found, preflight advises rolling back the dependent run first, instead of only surfacing:
+
+```text
+LINK_EXISTS
+```
+
+conflicts at execution time.
+
 ---
 
 # 19. Rollback Strategy Registry
@@ -954,6 +1000,8 @@ Stock Strategy
 
 Those are deliberately outside v1.
 
+If a restore fails document `validate()` during rollback, the operation becomes `Rollback Failed` and follows the manual remediation path defined in Rollback Algorithm — validation failures are never bypassed generically.
+
 ---
 
 # 22. Never Use Generic `ignore_validate_update_after_submit`
@@ -1017,8 +1065,12 @@ For every payload:
 
 12. COMMIT.
 
-13. Publish progress.
+13. Publish progress (throttled).
 ```
+
+Progress events are throttled: publish every N operations or T seconds, whichever comes first (initial values N=25, T=1s) — never one event per payload. A 100,000-row migration must not emit 100,000 realtime events.
+
+A no-op update (payload changes nothing) is still journaled as `Applied` and counts as a successful payload (see Snapshot Format — No-op updates).
 
 Failure:
 
@@ -1122,6 +1174,8 @@ Cancel Import
 
 After an emergency stop, run a reconciliation process before allowing rollback/resume.
 
+Reconciliation triggers are defined in Reconciliation: a scheduled stale-run scan (heartbeat threshold, default 5 minutes) and an on-demand check before any resume or rollback of a run whose worker is not alive.
+
 ---
 
 # 27. Reconciliation
@@ -1157,6 +1211,18 @@ Correct run counter to:
 ```
 
 The journal is authoritative.
+
+## When reconciliation runs
+
+1. A scheduled task:
+
+```text
+tasks/reconciliation.py
+```
+
+scans for stale `Running` runs — heartbeat older than a configurable threshold (default 5 minutes) — and reconciles them automatically.
+
+2. Reconciliation also runs on-demand before any resume or rollback request for a run whose worker is not alive.
 
 ---
 
@@ -1205,6 +1271,43 @@ commit failure record
 
 continue
 ```
+
+## Validation-failure remediation
+
+A restore can also fail `validate()` — for example a before-value was empty but the field became mandatory since import, or restoring a subset of fields violates a cross-field validation. Such operations are marked:
+
+```text
+Rollback Failed
+```
+
+Operator path:
+
+```text
+fix the blocking condition manually
+→ retry the rollback
+
+or
+
+explicitly skip-with-acknowledgement
+```
+
+A run remains in rollback status `Partial` until every operation reaches a terminal state:
+
+```text
+Rolled Back
+acknowledged-skipped
+Conflict accepted
+```
+
+## Save race guard
+
+The rollback engine loads a FRESH document, checks the field/hash guards, then saves — relying on Frappe's `TimestampMismatch` optimistic concurrency check to catch any modification that lands between the guard check and the save (see Concurrency Protection). A `TimestampMismatch` during rollback save becomes:
+
+```text
+Conflict
+```
+
+never a forced write.
 
 ---
 
@@ -1297,6 +1400,8 @@ Conflict where conflict has been resolved
 ```
 
 Already Rolled Back operations are skipped.
+
+Because `file_hash` locks the source file, retries cannot fix data errors. Source-data failures require a corrected file and a NEW import run. Retries only help transient failures such as locking, temporary link validation, or worker interruptions.
 
 ---
 
@@ -1400,6 +1505,8 @@ Internal journal writes can use privileged internal logic.
 
 Business objects should remain governed by explicit application authorization and normal document rules.
 
+Because background jobs execute as the enqueuing user, the Rollback Manager role must additionally carry write permission on the target DocTypes (see Background Jobs — Worker user context).
+
 ---
 
 # 35. Background Jobs
@@ -1427,6 +1534,16 @@ operation idempotency
 ```
 
 True idempotency must come from application state, not an RQ option.
+
+## Worker user context
+
+RQ jobs execute as the enqueuing user. Rollback jobs therefore run with the Rollback Manager's business-document permissions: the manager must also hold write permission on the target DocTypes, or operations fail with:
+
+```text
+PERMISSION_DENIED
+```
+
+Permission tests must verify the background-job context, not only direct API calls (see Permission Tests).
 
 ---
 
@@ -1643,6 +1760,23 @@ reversible_import/
 
 This keeps Frappe compatibility concerns isolated from rollback business logic.
 
+## API surface
+
+`api.py` exposes the following whitelisted endpoints, each enforcing server-side permission checks:
+
+```text
+start
+preview
+cancel
+resume
+retry
+request_rollback
+execute_rollback
+retry_rollback
+get_progress
+purge
+```
+
 ---
 
 # 42. Rollback Attempt Audit
@@ -1771,6 +1905,8 @@ Confirmation should state clearly:
 
 > Rollback will attempt to reverse supported operations. Documents changed or linked after import may be preserved and reported as conflicts.
 
+The confirmation screen also warns when the operation journal shows this run's documents are linked from documents created by another reversible import run, and advises rolling back the dependent run first (see Insert Rollback Guard — Cross-run dependency preflight).
+
 ---
 
 # 46. Conflict Review
@@ -1807,6 +1943,10 @@ DOCSTATUS_CHANGED
 PERMISSION_DENIED
 ```
 
+## Tree-master conflict messaging
+
+Tree masters (Customer Group, Territory) use NestedSet; deleting a node rebuilds `lft`/`rgt`. A human-created child under an imported parent blocks the parent's deletion as `LINK_EXISTS` — conflict messages for tree DocTypes must name the blocking child document(s) (see Insert Integration Tests).
+
 ---
 
 # 47. Production Safety Controls
@@ -1842,9 +1982,12 @@ Before business features:
 - capture representative standard import templates;
 - verify parser behavior;
 - document internal parser interfaces used;
+- document child-table update semantics per adapter (merged / replaced / left untouched);
 - introduce compatibility adapter;
 - create CI matrix;
-- add contract tests.
+- define CI concretely as a GitHub Actions workflow: matrix over Frappe v15 and v16, service containers for MariaDB and Redis, Frappe installed via bench, running the parser contract tests (see Parser Contract Tests) and the execution-path contract tests (see Frappe Upgrade Contract Tests);
+- add contract tests;
+- add a non-blocking `develop` CI job that alerts on future breakage.
 
 **Exit gate:** the same supported templates produce equivalent application payloads on v15 and v16.
 
@@ -2000,6 +2143,8 @@ CI minimum:
 | Redis/RQ worker | Yes |
 | Background scheduler | Yes |
 | Developer/test synchronous worker mode | Yes |
+
+PostgreSQL is explicitly unsupported and untested for v1. Snapshot fields (`before_values`, `child_before`, etc.) are JSON columns whose behavior differs between MariaDB and PostgreSQL; supporting both would double the CI matrix. This is a deliberate scope decision.
 
 Optional non-blocking:
 
@@ -2718,6 +2863,8 @@ journal data access
 
 The server must reject unauthorized operations.
 
+Repeat the rollback-execution checks inside an enqueued background job to verify the worker user context (RQ jobs execute as the enqueuing user), not only direct API calls.
+
 ---
 
 # 71. Submitted Document Tests
@@ -3006,6 +3153,8 @@ frappe_version
 
 Migration patches must never silently invalidate old rollback data.
 
+Likewise, old normalizer versions must remain bundled for the full rollback-eligibility window of any journal record that references them (see Normalized Hashing — Normalizer version lifetime).
+
 ---
 
 # 83. Frappe Upgrade Contract Tests
@@ -3024,6 +3173,14 @@ date parsing
 file parsing
 background queue API
 document insertion behavior
+```
+
+Also verify execution-path contracts:
+
+```text
+stop_data_import() availability and behavior
+background start_import() execution path (module-level, not via DataImport.get_importer())
+Upsert availability (feature-detected, currently develop only)
 ```
 
 If an internal parser contract changes:
