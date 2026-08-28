@@ -12,13 +12,17 @@ concurrency:
 
 jobs:
   test:
-    name: Frappe ${{ matrix.frappe }} — Python 3.11
+    name: Frappe ${{ matrix.frappe }} — Python ${{ matrix.python }}
     runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        frappe: [version-15, version-16]
+        include:
+          - frappe: version-15
+            python: "3.11"
+          - frappe: version-16
+            python: "3.12"
 
     services:
       redis:
@@ -38,7 +42,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python }}
 
       - name: Start MariaDB
         run: |
@@ -68,7 +72,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.frappe }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-pip-${{ matrix.frappe }}-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}
 
       - name: Install bench
         run: |
@@ -80,7 +84,7 @@ jobs:
           bench init \
             --frappe-branch ${{ matrix.frappe }} \
             --skip-redis-config-generation \
-            --python python3.11 \
+            --python python${{ matrix.python }} \
             frappe-bench
 
       - name: Cache bench assets

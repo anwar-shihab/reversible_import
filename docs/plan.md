@@ -1985,9 +1985,8 @@ Before business features:
 - document child-table update semantics per adapter (merged / replaced / left untouched);
 - introduce compatibility adapter;
 - create CI matrix;
-- define CI concretely as a GitHub Actions workflow: matrix over Frappe v15 and v16, service containers for MariaDB and Redis, Frappe installed via bench, running the parser contract tests (see Parser Contract Tests) and the execution-path contract tests (see Frappe Upgrade Contract Tests);
-- add contract tests;
-- add a non-blocking `develop` CI job that alerts on future breakage.
+- define CI concretely as a GitHub Actions workflow: matrix over Frappe v15 on Python 3.11 and v16 on Python 3.12, service containers for MariaDB and Redis, Frappe installed via bench, running the parser contract tests (see Parser Contract Tests) and the execution-path contract tests (see Frappe Upgrade Contract Tests);
+- add contract tests.
 
 **Exit gate:** the same supported templates produce equivalent application payloads on v15 and v16.
 
@@ -2146,7 +2145,7 @@ CI minimum:
 
 PostgreSQL is explicitly unsupported and untested for v1. Snapshot fields (`before_values`, `child_before`, etc.) are JSON columns whose behavior differs between MariaDB and PostgreSQL; supporting both would double the CI matrix. This is a deliberate scope decision.
 
-Optional non-blocking:
+Future compatibility:
 
 ```text
 Frappe develop
@@ -2156,7 +2155,7 @@ Purpose:
 
 > Early detection of future compatibility breakage.
 
-Develop failures should alert maintainers but must not redefine current v15/v16 compatibility.
+`develop` is not included in CI because its current Python requirement is not available on standard GitHub Actions runners. Compatibility with future stable versions will be validated when a new release branch is cut.
 
 ---
 

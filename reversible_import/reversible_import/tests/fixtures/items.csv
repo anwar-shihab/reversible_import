@@ -1,0 +1,4 @@
+Item,Item Name,Item Group,Stock UOM,Is Stock Item
+ITM-001,Widget A,Products,Piece,1
+ITM-002,Widget B,Products,Piece,1
+ITM-003,Service A,Services,Hour,0
