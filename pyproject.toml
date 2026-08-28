@@ -28,7 +28,7 @@ Repository = "https://github.com/anwar-shihab/reversible_import"
 name = "reversible_import"
 
 [tool.pytest.ini_options]
-testpaths = ["reversible_import/reversible_import/tests"]
+testpaths = ["reversible_import/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
