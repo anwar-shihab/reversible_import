@@ -34,6 +34,7 @@ bench get-app reversible_import /path/to/reversible_import
 ```bash
 bench new-site test_site --mariadb-root-password root --admin-password admin
 bench --site test_site install-app reversible_import
+bench --site test_site set-config stream_logging 1
 ```
 
 ### 4. Run tests

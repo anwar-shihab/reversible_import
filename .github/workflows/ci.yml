@@ -119,6 +119,10 @@ jobs:
         working-directory: frappe-bench
         run: bench --site test_site install-app reversible_import
 
+      - name: Configure test site for CI logging
+        working-directory: frappe-bench
+        run: bench --site test_site set-config stream_logging 1
+
       - name: Run tests
         working-directory: frappe-bench
         env:
