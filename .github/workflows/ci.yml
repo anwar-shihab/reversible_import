@@ -119,14 +119,11 @@ jobs:
         working-directory: frappe-bench
         run: bench --site test_site install-app reversible_import
 
-      - name: Configure test site for CI logging
-        working-directory: frappe-bench
-        run: bench --site test_site set-config stream_logging 1
-
       - name: Run tests
         working-directory: frappe-bench
         env:
           FRAPPE_SITE: test_site
+          FRAPPE_STREAM_LOGGING: "1"
         run: ./env/bin/python -m pytest apps/reversible_import/reversible_import/tests -v
 
       - name: Upload test results
