@@ -40,7 +40,7 @@ def execute_rollback(run_name: str) -> None:
 
 	for operation_name in operations:
 		operation = frappe.get_doc("Reversible Import Operation", operation_name)
-		strategy = resolve_strategy(operation.doctype, _map_operation_to_import_type(operation.operation))
+		strategy = resolve_strategy(operation.reference_doctype, _map_operation_to_import_type(operation.operation))
 
 		try:
 			frappe.db.savepoint("rollback_operation")

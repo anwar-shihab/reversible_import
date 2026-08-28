@@ -18,26 +18,26 @@ class GenericMasterInsertStrategy(RollbackStrategy):
     """
 
 	def guard(self, operation) -> None:
-		if not frappe.db.exists(operation.doctype, operation.docname):
+		if not frappe.db.exists(operation.reference_doctype, operation.docname):
 			raise RollbackConflictError(
-				f"Document {operation.doctype} {operation.docname} no longer exists."
+				f"Document {operation.reference_doctype} {operation.docname} no longer exists."
 			)
 
-		current = frappe.get_doc(operation.doctype, operation.docname)
+		current = frappe.get_doc(operation.reference_doctype, operation.docname)
 		current_hash = hash_document_state(current)
 		if current_hash != operation.after_hash:
 			raise RollbackConflictError(
-				f"Document {operation.doctype} {operation.docname} has been modified after import."
+				f"Document {operation.reference_doctype} {operation.docname} has been modified after import."
 			)
 
 	def rollback(self, operation) -> None:
 		try:
-			frappe.delete_doc(operation.doctype, operation.docname)
+			frappe.delete_doc(operation.reference_doctype, operation.docname)
 		except frappe.exceptions.LinkExistsError as exc:
 			raise RollbackConflictError(
-				f"Cannot delete {operation.doctype} {operation.docname}: linked documents exist."
+				f"Cannot delete {operation.reference_doctype} {operation.docname}: linked documents exist."
 			) from exc
 		except Exception as exc:
 			raise RollbackFailedError(
-				f"Failed to delete {operation.doctype} {operation.docname}: {exc}"
+				f"Failed to delete {operation.reference_doctype} {operation.docname}: {exc}"
 			) from exc

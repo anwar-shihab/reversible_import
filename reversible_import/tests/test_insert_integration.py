@@ -25,7 +25,7 @@ class TestInsertIntegration:
             doc = frappe.get_doc("Reversible Import Operation", op.name)
             assert doc.status == "Applied"
             assert doc.operation == "INSERT"
-            assert doc.doctype == "Note"
+            assert doc.reference_doctype == "Note"
             assert frappe.db.exists("Note", doc.docname)
 
         assert frappe.db.exists("Note", {"title": "Test Note A"})

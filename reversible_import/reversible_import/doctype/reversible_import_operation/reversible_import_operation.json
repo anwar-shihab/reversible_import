@@ -9,7 +9,7 @@
   "sequence",
   "operation_key",
   "operation",
-  "doctype",
+  "reference_doctype",
   "docname",
   "source_key",
   "row_indexes",
@@ -57,7 +57,7 @@
    "reqd": 1
   },
   {
-   "fieldname": "doctype",
+   "fieldname": "reference_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "DocType",
