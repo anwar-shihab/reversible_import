@@ -68,8 +68,7 @@
    "fieldname": "docname",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Document Name",
-   "reqd": 1
+   "label": "Document Name"
   },
   {
    "fieldname": "source_key",
