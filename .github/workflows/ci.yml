@@ -22,7 +22,7 @@ jobs:
           - frappe: version-15
             python: "3.11"
           - frappe: version-16
-            python: "3.12"
+            python: "3.14"
 
     services:
       redis:

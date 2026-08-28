@@ -1985,7 +1985,7 @@ Before business features:
 - document child-table update semantics per adapter (merged / replaced / left untouched);
 - introduce compatibility adapter;
 - create CI matrix;
-- define CI concretely as a GitHub Actions workflow: matrix over Frappe v15 on Python 3.11 and v16 on Python 3.12, service containers for MariaDB and Redis, Frappe installed via bench, running the parser contract tests (see Parser Contract Tests) and the execution-path contract tests (see Frappe Upgrade Contract Tests);
+- define CI concretely as a GitHub Actions workflow: matrix over Frappe v15 on Python 3.11 and v16 on Python 3.14, service containers for MariaDB and Redis, Frappe installed via bench, running the parser contract tests (see Parser Contract Tests) and the execution-path contract tests (see Frappe Upgrade Contract Tests);
 - add contract tests.
 
 **Exit gate:** the same supported templates produce equivalent application payloads on v15 and v16.

@@ -12,7 +12,7 @@ sudo apt update
 sudo apt install python3.11-dev python3.11-venv python3.12-dev python3.12-venv build-essential mariadb-client libmariadb-dev redis-server nodejs yarn wkhtmltopdf
 
 # Create bench
-bench init --frappe-branch version-16 --python python3.12 frappe-bench
+bench init --frappe-branch version-16 --python python3.14 frappe-bench
 # or for v15
 bench init --frappe-branch version-15 --python python3.11 frappe-bench
 ```

@@ -19,7 +19,7 @@ Phase 0 — Compatibility Contract — is in progress. The repository now contai
 
 - A Frappe-version compatibility adapter (`reversible_import/compat/`).
 - Parser and execution-path contract tests.
-- A CI matrix covering Frappe `version-15` (Python 3.11) and `version-16` (Python 3.12).
+- A CI matrix covering Frappe `version-15` (Python 3.11) and `version-16` (Python 3.14).
 - The implementation plan at [`docs/plan.md`](docs/plan.md) and parser contract notes at [`docs/parser-contract.md`](docs/parser-contract.md).
 
 Phase 1 (foundation and Insert rollback) starts once the Phase 0 exit gate is green in CI.
