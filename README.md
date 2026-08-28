@@ -15,7 +15,18 @@ bench --site <site> install-app reversible_import
 
 ## Status
 
-This repository currently contains the Frappe app scaffold and the implementation plan. Functional features will land incrementally following the phases documented in `docs/plan.md`.
+Phase 0 — Compatibility Contract — is in progress. The repository now contains:
+
+- A Frappe-version compatibility adapter (`reversible_import/compat/`).
+- Parser and execution-path contract tests.
+- A CI matrix covering Frappe `version-15` and `version-16`.
+- The implementation plan at [`docs/plan.md`](docs/plan.md) and parser contract notes at [`docs/parser-contract.md`](docs/parser-contract.md).
+
+Phase 1 (foundation and Insert rollback) starts once the Phase 0 exit gate is green in CI.
+
+## Development
+
+See [`docs/dev-setup.md`](docs/dev-setup.md) for local bench instructions.
 
 ## License
 

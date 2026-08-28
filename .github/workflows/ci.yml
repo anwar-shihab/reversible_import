@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Frappe ${{ matrix.frappe }} — Python 3.11
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        frappe: [version-15, version-16]
+
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_site
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=5s
+          --health-timeout=2s
+          --health-retries=3
+          --character-set-server=utf8mb4
+          --collation-server=utf8mb4_unicode_ci
+          --skip-character-set-client-handshake
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=2s
+          --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libffi-dev liblcms2-dev libldap2-dev \
+            libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools \
+            software-properties-common tk-dev wkhtmltopdf zlib1g-dev \
+            curl nodejs npm
+          sudo npm install -g yarn
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.frappe }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install bench
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install frappe-bench
+
+      - name: Init bench
+        run: |
+          bench init \
+            --frappe-branch ${{ matrix.frappe }} \
+            --skip-redis-config-generation \
+            --python python3.11 \
+            frappe-bench
+
+      - name: Cache bench assets
+        uses: actions/cache@v4
+        with:
+          path: frappe-bench/apps/frappe/node_modules
+          key: ${{ runner.os }}-bench-${{ matrix.frappe }}-${{ hashFiles('frappe-bench/apps/frappe/yarn.lock') }}
+
+      - name: Install app
+        working-directory: frappe-bench
+        run: |
+          bench get-app reversible_import ${{ github.workspace }}
+
+      - name: Create site
+        working-directory: frappe-bench
+        run: |
+          bench new-site test_site \
+            --mariadb-root-password root \
+            --admin-password admin \
+            --db-host 127.0.0.1
+
+      - name: Install app on site
+        working-directory: frappe-bench
+        run: bench --site test_site install-app reversible_import
+
+      - name: Run tests
+        working-directory: frappe-bench
+        run: bench --site test_site run-tests --app reversible_import
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.frappe }}
+          path: frappe-bench/sites/test_site/logs/

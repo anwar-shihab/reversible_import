@@ -17,9 +17,18 @@ classifiers = [
     "Framework :: Frappe",
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=7.0", "pytest-xdist>=2.5"]
+
 [project.urls]
 Homepage = "https://github.com/anwar-shihab/reversible_import"
 Repository = "https://github.com/anwar-shihab/reversible_import"
 
 [tool.flit.module]
 name = "reversible_import"
+
+[tool.pytest.ini_options]
+testpaths = ["reversible_import/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
