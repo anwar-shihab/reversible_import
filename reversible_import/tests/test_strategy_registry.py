@@ -11,7 +11,7 @@ class TestStrategyRegistry:
         assert isinstance(strategy, GenericMasterInsertStrategy)
 
     def test_unallowed_doctype_is_forbidden(self):
-        strategy = resolve_strategy("Note", "Insert New Records")
+        strategy = resolve_strategy("Sales Invoice", "Insert New Records")
         assert isinstance(strategy, ForbiddenStrategy)
         assert strategy.is_forbidden
 

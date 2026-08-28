@@ -25,7 +25,8 @@ def process_insert_payload(run, payload: dict[str, Any], sequence: int):
 			f"Rollback is unsupported for {run.reference_doctype}; import aborted."
 		)
 
-	doc = payload["doc"]
+	doc = dict(payload["doc"])
+	doc["doctype"] = run.reference_doctype
 	new_doc = frappe.get_doc(doc).insert()
 
 	# Reload to capture defaults and any server-side mutations.
