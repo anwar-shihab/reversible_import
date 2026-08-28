@@ -16,6 +16,31 @@ class ImportAdapter(ABC):
 
     version_label: str
 
+    def _ensure_file_url(self, import_file_path: str | Path) -> str:
+        """Return a Frappe file_url for ``import_file_path``.
+
+        Frappe's Data Import parser reads binary .xlsx files through the File
+        doctype.  If ``import_file_path`` is a local filesystem path, upload it
+        to a File document and return the file_url.  Otherwise assume the value
+        is already a file_url and return it unchanged.
+        """
+        import frappe
+
+        path = Path(import_file_path)
+        if not path.exists():
+            return str(import_file_path)
+
+        file_doc = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": path.name,
+                "content": path.read_bytes(),
+                "is_private": 0,
+            }
+        )
+        file_doc.insert(ignore_permissions=True)
+        return file_doc.file_url
+
     @abstractmethod
     def validate_file(
         self,

@@ -1,4 +1,4 @@
 first_name,last_name,email_id,is_primary
 Alpha,Inc,john@example.com,1
-,jane@example.com,0
+,,jane@example.com,0
 Beta,Smith,alice@example.com,1

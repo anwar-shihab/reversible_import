@@ -32,8 +32,7 @@ class FrappeV16Adapter(ImportAdapter):
         return Importer(
             reference_doctype,
             data_import=data_import,
-            file_path=str(import_file_path),
-            console=True,
+            file_path=self._ensure_file_url(import_file_path),
             use_sniffer=False,
         )
 
@@ -67,7 +66,7 @@ class FrappeV16Adapter(ImportAdapter):
         )
         preview = importer.get_data_for_import_preview()
         return {
-            "total_rows": preview.total_number_of_rows,
+            "total_rows": len(importer.import_file.data),
             "total_payloads": len(importer.import_file.get_payloads_for_import()),
             "warnings": preview.warnings,
             "columns": preview.columns,

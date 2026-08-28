@@ -69,14 +69,37 @@ def fixtures_dir() -> Path:
     return Path(__file__).parent / "fixtures"
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def sample_file(fixtures_dir: Path):
-    """Return the absolute path to a named fixture file."""
+    """Return a Frappe file_url for a named fixture file.
+
+    Frappe's Data Import parser reads binary .xlsx files through the File
+    doctype, so local disk paths only work for CSV when console=True.  Uploading
+    fixtures once per session gives the adapter a proper file_url for both CSV
+    and XLSX fixtures.
+    """
+    _cache: dict[str, str] = {}
 
     def _resolve(filename: str) -> str:
+        if filename in _cache:
+            return _cache[filename]
+
         path = fixtures_dir / filename
         if not path.exists():
             raise FileNotFoundError(f"Fixture not found: {path}")
-        return str(path)
+
+        file_doc = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": path.name,
+                "content": path.read_bytes(),
+                "is_private": 0,
+            }
+        )
+        file_doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        _cache[filename] = file_doc.file_url
+        return file_doc.file_url
 
     return _resolve
