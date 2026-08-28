@@ -21,22 +21,6 @@ jobs:
         frappe: [version-15, version-16]
 
     services:
-      mariadb:
-        image: mariadb:10.6
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_site
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=5s
-          --health-timeout=2s
-          --health-retries=3
-          --character-set-server=utf8mb4
-          --collation-server=utf8mb4_unicode_ci
-          --skip-character-set-client-handshake
-
       redis:
         image: redis:7-alpine
         ports:
@@ -55,6 +39,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Start MariaDB
+        run: |
+          docker run -d --name mariadb -p 3306:3306 \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=test_site \
+            mariadb:10.6 \
+            --character-set-server=utf8mb4 \
+            --collation-server=utf8mb4_unicode_ci \
+            --transaction-isolation=READ-COMMITTED \
+            --skip-character-set-client-handshake
+          until docker exec mariadb mariadb-admin -uroot -proot ping; do
+            echo "Waiting for MariaDB..."
+            sleep 2
+          done
 
       - name: Install system dependencies
         run: |
