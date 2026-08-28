@@ -85,9 +85,9 @@ def reversible_settings():
     else:
         settings = frappe.get_doc("Reversible Import Settings")
 
-    existing = {row.doctype for row in settings.allowed_doctypes}
+    existing = {row.get("allowed_doctype") for row in settings.allowed_doctypes}
     if "Note" not in existing:
-        settings.append("allowed_doctypes", {"doctype": "Note"})
+        settings.append("allowed_doctypes", {"allowed_doctype": "Note"})
         settings.save(ignore_permissions=True)
         frappe.db.commit()
     return settings

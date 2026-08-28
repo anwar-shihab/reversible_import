@@ -24,7 +24,7 @@ class StrategyResolver:
 	def _get_allowed_doctypes(self) -> set[str]:
 		try:
 			settings = frappe.get_doc("Reversible Import Settings")
-			return {row.doctype for row in settings.allowed_doctypes if row.doctype}
+			return {row.get("allowed_doctype") for row in settings.allowed_doctypes if row.get("allowed_doctype")}
 		except Exception:
 			frappe.log_error("Failed to load reversible import settings whitelist")
 			return set()

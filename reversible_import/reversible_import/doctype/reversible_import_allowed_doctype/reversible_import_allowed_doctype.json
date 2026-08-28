@@ -6,11 +6,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "doctype"
+  "allowed_doctype"
  ],
  "fields": [
   {
-   "fieldname": "doctype",
+   "fieldname": "allowed_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "DocType",
