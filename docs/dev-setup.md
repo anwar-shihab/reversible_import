@@ -39,13 +39,7 @@ bench --site test_site install-app reversible_import
 ### 4. Run tests
 
 ```bash
-bench --site test_site run-tests --app reversible_import
-```
-
-Or with pytest directly inside the bench env:
-
-```bash
-bench --site test_site python -m pytest reversible_import/reversible_import/tests
+bench --site test_site python -m pytest apps/reversible_import/reversible_import/tests -v
 ```
 
 ## CI
