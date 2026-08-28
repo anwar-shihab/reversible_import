@@ -19,7 +19,7 @@ def frappe_site() -> str:
     environment without ``bench run-tests``.
     """
     site = os.environ.get("FRAPPE_SITE", "test_site")
-    frappe.init(site)
+    frappe.init(site, sites_path="sites")
     frappe.connect()
     yield site
     frappe.destroy()
