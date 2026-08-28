@@ -38,7 +38,7 @@ def _make_payload_key(payload: dict) -> tuple:
         payload.get("name"),
         doc.get("first_name"),
         doc.get("last_name"),
-        payload.get("row_indexes"),
+        tuple(payload.get("row_indexes", [])),
         emails,
     )
 
