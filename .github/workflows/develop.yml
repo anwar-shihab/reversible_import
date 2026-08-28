@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   test:
-    name: Frappe develop — Python 3.11
+    name: Frappe develop — Python 3.12
     runs-on: ubuntu-22.04
     continue-on-error: true
 
@@ -36,7 +36,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Start MariaDB
         run: |
@@ -78,7 +78,7 @@ jobs:
           bench init \
             --frappe-branch develop \
             --skip-redis-config-generation \
-            --python python3.11 \
+            --python python3.12 \
             frappe-bench
 
       - name: Install app
