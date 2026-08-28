@@ -48,6 +48,7 @@ def execute_rollback(run_name: str) -> None:
 			strategy.rollback(operation)
 			operation.rollback_status = "Rolled Back"
 			operation.rolled_back_at = frappe.utils.now()
+			operation.save()
 			success += 1
 			frappe.db.commit()
 		except RollbackConflictError as exc:
