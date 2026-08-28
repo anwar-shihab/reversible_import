@@ -10,10 +10,25 @@ import pytest
 from reversible_import.compat.registry import get_adapter
 
 
+@pytest.fixture(scope="session", autouse=True)
+def frappe_site() -> str:
+    """Initialise Frappe and connect to the test site.
+
+    The site name is read from the FRAPPE_SITE environment variable and
+    defaults to ``test_site`` so CI can run pytest directly from the bench
+    environment without ``bench run-tests``.
+    """
+    site = os.environ.get("FRAPPE_SITE", "test_site")
+    frappe.init(site)
+    frappe.connect()
+    yield site
+    frappe.destroy()
+
+
 @pytest.fixture(scope="session")
-def site_name() -> str:
-    """Return the current Frappe site, if any."""
-    return frappe.local.site
+def site_name(frappe_site) -> str:
+    """Return the current Frappe site name."""
+    return frappe_site
 
 
 @pytest.fixture(scope="session")

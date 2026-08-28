@@ -121,7 +121,9 @@ jobs:
 
       - name: Run tests
         working-directory: frappe-bench
-        run: bench --site test_site python -m pytest apps/reversible_import/reversible_import/tests -v
+        env:
+          FRAPPE_SITE: test_site
+        run: ./env/bin/python -m pytest apps/reversible_import/reversible_import/tests -v
 
       - name: Upload test results
         if: failure()
