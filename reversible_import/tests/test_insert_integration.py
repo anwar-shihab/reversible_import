@@ -32,6 +32,13 @@ class TestInsertIntegration:
         assert frappe.db.exists("Note", {"title": "Test Note B"})
         assert frappe.db.exists("Note", {"title": "Test Note C"})
 
+        # Clean up so the rollback test starts from an empty Note table.
+        for title in ("Test Note A", "Test Note B", "Test Note C"):
+            name = frappe.db.get_value("Note", {"title": title}, "name")
+            if name:
+                frappe.db.sql("DELETE FROM `tabNote` WHERE name = %s", name)
+        frappe.db.commit()
+
     def test_rollback_deletes_documents_and_marks_journal(self, note_import_run):
         run_import(note_import_run.name)
         run = frappe.get_doc("Reversible Data Import", note_import_run.name)
