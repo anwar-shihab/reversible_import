@@ -33,6 +33,7 @@ class FrappeV16Adapter(ImportAdapter):
             reference_doctype,
             data_import=data_import,
             file_path=str(import_file_path),
+            console=True,
             use_sniffer=False,
         )
 

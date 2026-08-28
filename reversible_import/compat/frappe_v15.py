@@ -33,6 +33,7 @@ class FrappeV15Adapter(ImportAdapter):
             reference_doctype,
             data_import=data_import,
             file_path=str(import_file_path),
+            console=True,
         )
 
     def validate_file(
