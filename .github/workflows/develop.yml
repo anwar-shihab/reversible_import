@@ -86,6 +86,10 @@ jobs:
         run: |
           bench get-app reversible_import ${{ github.workspace }}
 
+      - name: Install test dependencies
+        working-directory: frappe-bench
+        run: ./env/bin/pip install pytest pytest-xdist
+
       - name: Create site
         working-directory: frappe-bench
         run: |
